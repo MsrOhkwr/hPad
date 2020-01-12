@@ -6,11 +6,13 @@ struct PSModules
 {
     public ParticleSystem.ForceOverLifetimeModule Folm;
     public ParticleSystem.EmissionModule Em;
+    public ParticleSystem.ShapeModule Sh;
 
-    public PSModules(ParticleSystem.ForceOverLifetimeModule folm, ParticleSystem.EmissionModule em)
+    public PSModules(ParticleSystem.ForceOverLifetimeModule folm, ParticleSystem.EmissionModule em, ParticleSystem.ShapeModule sh)
     {
         Folm = folm;
         Em = em;
+        Sh = sh;
     }
 }
 public class ControlFire : MonoBehaviour
@@ -29,23 +31,27 @@ public class ControlFire : MonoBehaviour
         GameObject obj = GameObject.Find("PS_Parent");
         particle = obj.GetComponent<ParticleSystem>();
 
+        //炎は4重のパーティクルのインスタンスから構成する
         ParticleSystem ParticleObj;
         ParticleObj = transform.Find("PS_Fire_ALPHA").GetComponent<ParticleSystem>();
         Fire[0].Folm = ParticleObj.forceOverLifetime;
         Fire[0].Em   = ParticleObj.emission;
+        Fire[0].Sh   = ParticleObj.shape;
 
         ParticleObj = transform.Find("PS_Fire_ADD").GetComponent<ParticleSystem>();
         Fire[1].Folm = ParticleObj.forceOverLifetime;
         Fire[1].Em = ParticleObj.emission;
+        Fire[1].Sh = ParticleObj.shape;
 
         ParticleObj = transform.Find("PS_Glow").GetComponent<ParticleSystem>();
         Fire[2].Folm = ParticleObj.forceOverLifetime;
         Fire[2].Em = ParticleObj.emission;
+        Fire[2].Sh = ParticleObj.shape;
 
         ParticleObj = transform.Find("PS_Sparks").GetComponent<ParticleSystem>();
         Fire[3].Folm = ParticleObj.forceOverLifetime;
         Fire[3].Em = ParticleObj.emission;
-
+        Fire[3].Sh = ParticleObj.shape;
     }
 
     private float mCount = 0;       //←時間計測用
@@ -55,30 +61,62 @@ public class ControlFire : MonoBehaviour
     [System.Obsolete]
     void Update()
     {
+
+        //着火の判定 ==========================================================================
+
         if (Input.GetMouseButtonDown(0))
         {
             NowPos = Input.mousePosition;
+ 
         } else if (Input.GetMouseButton(0))
         {
+            Debug.Log("KeyBoard input accepted");
             PrePos = NowPos;
             NowPos = Input.mousePosition;
             if (Vector2.Distance(NowPos, PrePos) > 75.0f)
                 particle.Play();
         }
 
+        //炎の傾き方向の判定 ==========================================================================
+        //水平方向の値の取得
         float force = Input.GetAxis("Horizontal") * 2f;
+
+        //鉛直方向の値の取得
+        float v_force = Input.GetAxis("Vertical") * 2f;
+
+        //加速度の値の取得
+        Vector3 acc = Input.acceleration;
+
+
+        //Debug.Log(Input.GetAxis("Vertical") * 2f);
+        //Debug.Log(Input.GetAxis("Horizontal") * 2f);
+
+        float v_force_float = (float)25.0 * v_force;
+        int v_force_int = (int)v_force;
+
         for (int i = 0; i < Fire.Length; i++)
         {
             if (i == 3)
             {
 
                 Fire[i].Em.rate = new ParticleSystem.MinMaxCurve(5);
+                //x方向の加速度の絶対値に応じて調整
                 Fire[i].Folm.x = new ParticleSystem.MinMaxCurve(-2 + force, 2 + force);
+
+                //y方向の加速度の絶対値に応じて調整
+                Fire[i].Folm.y = new ParticleSystem.MinMaxCurve(-10 + 5 * v_force, 10 + 5 * v_force);
+                Fire[i].Sh.angle = 12 + 6 * v_force;
+                //Fire[i].Folm.y = new ParticleSystem.MinMaxCurve(-10 + 5 * System.Math.Abs(acc.y), 10 + 5 * System.Math.Abs(acc.y));
+                Fire[i].Sh.angle = 12 + 6 * System.Math.Abs(acc.y);
+
             }
             else
             {
                 Fire[i].Em.rate = new ParticleSystem.MinMaxCurve(10);
                 Fire[i].Folm.x = new ParticleSystem.MinMaxCurve(force);
+                Fire[i].Folm.y = new ParticleSystem.MinMaxCurve(5 * v_force);
+                Fire[i].Sh.angle = 12 + 6 * v_force;
+                //Fire[i].Sh.angle = 12 + 6 * System.Math.Abs(acc.y);
             }
         }
         
@@ -117,5 +155,7 @@ public class ControlFire : MonoBehaviour
             mSwitch = !mSwitch;
         }
         */
+
+
     }
 }
