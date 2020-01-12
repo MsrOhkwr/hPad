@@ -91,8 +91,6 @@ public class ControlFire : MonoBehaviour
         //Debug.Log(Input.GetAxis("Vertical") * 2f);
         //Debug.Log(Input.GetAxis("Horizontal") * 2f);
 
-        float v_force_float = (float)25.0 * v_force;
-        int v_force_int = (int)v_force;
 
         for (int i = 0; i < Fire.Length; i++)
         {
@@ -101,12 +99,15 @@ public class ControlFire : MonoBehaviour
 
                 Fire[i].Em.rate = new ParticleSystem.MinMaxCurve(5);
                 //x方向の加速度の絶対値に応じて調整
-                Fire[i].Folm.x = new ParticleSystem.MinMaxCurve(-2 + force, 2 + force);
+                //Fire[i].Folm.x = new ParticleSystem.MinMaxCurve(-2 + force, 2 + force);
+                Fire[i].Folm.x = new ParticleSystem.MinMaxCurve(-10 + 5 * System.Math.Abs(acc.x), 10 + 5 * System.Math.Abs(acc.x));
+
 
                 //y方向の加速度の絶対値に応じて調整
-                Fire[i].Folm.y = new ParticleSystem.MinMaxCurve(-10 + 5 * v_force, 10 + 5 * v_force);
-
+                
+                //Fire[i].Folm.y = new ParticleSystem.MinMaxCurve(-10 + 5 * v_force, 10 + 5 * v_force);
                 //Fire[i].Sh.angle = 12 + 6 * v_force;
+
                 Fire[i].Folm.y = new ParticleSystem.MinMaxCurve(-10 + 5 * System.Math.Abs(acc.y), 10 + 5 * System.Math.Abs(acc.y));
                 Fire[i].Sh.angle = 12 + 24 * System.Math.Abs(acc.y);
 
@@ -117,6 +118,7 @@ public class ControlFire : MonoBehaviour
                 Fire[i].Em.rate = new ParticleSystem.MinMaxCurve(10);
                 Fire[i].Folm.x = new ParticleSystem.MinMaxCurve(force);
                 Fire[i].Folm.y = new ParticleSystem.MinMaxCurve(5 * v_force);
+
 
                 //Fire[i].Sh.angle = 12 + 6 * v_force;
                 Fire[i].Sh.angle = 12 + 24 * System.Math.Abs(acc.y);
