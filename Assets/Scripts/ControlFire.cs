@@ -76,6 +76,18 @@ public class ControlFire : MonoBehaviour
     [System.Obsolete]
     void Update()
     {
+
+        m_source.GetSpectrumData(currentValues, 0, FFTWindow.Hamming);
+        float sum = 0f;
+        for (int i = 0; i < currentValues.Length; ++i)
+        {
+            sum += currentValues[i]; // add data (power of each wavelength)
+        }
+        // calculate volume
+        float volumeRate = Mathf.Clamp01(sum * m_gain / (float)currentValues.Length);
+        Debug.Log(volumeRate);
+
+
         if (Input.GetMouseButtonDown(0))
         {
             NowPos = Input.mousePosition;
@@ -87,12 +99,11 @@ public class ControlFire : MonoBehaviour
                 particle.Play();
         }
 
-        float force = Input.GetAxis("Horizontal") * 2f;
+        float force = Input.GetAxis("Horizontal") * 2f + volumeRate * 100f;
         for (int i = 0; i < Fire.Length; i++)
         {
             if (i == 3)
             {
-
                 Fire[i].Em.rate = new ParticleSystem.MinMaxCurve(5);
                 Fire[i].Folm.x = new ParticleSystem.MinMaxCurve(-2 + force, 2 + force);
             }
@@ -138,15 +149,5 @@ public class ControlFire : MonoBehaviour
             mSwitch = !mSwitch;
         }
         */
-
-        m_source.GetSpectrumData(currentValues, 0, FFTWindow.Hamming);
-        float sum = 0f;
-        for (int i = 0; i < currentValues.Length; ++i)
-        {
-            sum += currentValues[i]; // add data (power of each wavelength)
-        }
-        // calculate volume
-        float volumeRate = Mathf.Clamp01(sum * m_gain / (float)currentValues.Length);
-        Debug.Log(volumeRate);
     }
 }
