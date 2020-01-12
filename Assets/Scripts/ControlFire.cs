@@ -105,9 +105,15 @@ public class ControlFire : MonoBehaviour
 
                 //y方向の加速度の絶対値に応じて調整
                 Fire[i].Folm.y = new ParticleSystem.MinMaxCurve(-10 + 5 * v_force, 10 + 5 * v_force);
+<<<<<<< HEAD
                 //Fire[i].Sh.angle = 12 + 6 * v_force;
                 Fire[i].Folm.y = new ParticleSystem.MinMaxCurve(-10 + 5 * System.Math.Abs(acc.y), 10 + 5 * System.Math.Abs(acc.y));
                 Fire[i].Sh.angle = 12 + 24 * System.Math.Abs(acc.y);
+=======
+                Fire[i].Sh.angle = 12 + 6 * v_force;
+                //Fire[i].Folm.y = new ParticleSystem.MinMaxCurve(-10 + 5 * System.Math.Abs(acc.y), 10 + 5 * System.Math.Abs(acc.y));
+                Fire[i].Sh.angle = 12 + 6 * System.Math.Abs(acc.y);
+>>>>>>> 75f13959dabe0c900e9ddd6fde00c63d6069a272
 
             }
             else
@@ -115,8 +121,13 @@ public class ControlFire : MonoBehaviour
                 Fire[i].Em.rate = new ParticleSystem.MinMaxCurve(10);
                 Fire[i].Folm.x = new ParticleSystem.MinMaxCurve(force);
                 Fire[i].Folm.y = new ParticleSystem.MinMaxCurve(5 * v_force);
+<<<<<<< HEAD
                 //Fire[i].Sh.angle = 12 + 6 * v_force;
                 Fire[i].Sh.angle = 12 + 24 * System.Math.Abs(acc.y);
+=======
+                Fire[i].Sh.angle = 12 + 6 * v_force;
+                //Fire[i].Sh.angle = 12 + 6 * System.Math.Abs(acc.y);
+>>>>>>> 75f13959dabe0c900e9ddd6fde00c63d6069a272
             }
         }
         
