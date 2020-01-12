@@ -13,32 +13,26 @@ public class CallComputeShader : MonoBehaviour
 
     #endregion
 
+    readonly int size = 32;
+
     // Start is called before the first frame update
     void Start()
     {
         int shader_kanel = compute_shader.FindKernel("CSMain");
-        buffer = new ComputeBuffer(5, sizeof(int));
-        set_data = new int[5];
-        for (int _i = 0; _i < 5; _i++)
-        {
-            set_data[_i] = _i;
-
-            Debug.Log("数字：" + set_data[_i]);
-        }
+        buffer = new ComputeBuffer(size, sizeof(int));
+        set_data = new int[size];
         buffer.SetData(set_data);
         compute_shader.SetBuffer(shader_kanel, "int_result", buffer);
-        compute_shader.Dispatch(shader_kanel, 1, 1, 1);
-        buffer.GetData(set_data);
-        
-        for (int _i = 0; _i < 5; _i++)
-        {
-            Debug.Log("処理後の数字:" + set_data[_i]);
-        }
+        compute_shader.Dispatch(shader_kanel, size, 1, 1);
+        buffer.Release();
     }
 
     // Update is called once per frame
     void Update()
     {
-        compute_shader.Dispatch(shader_kanel, 4096, 64, 1);
+        for (int i = 0; i < 1024; i++)
+        {
+            compute_shader.Dispatch(shader_kanel, size, 1, 1);
+        }
     }
 }

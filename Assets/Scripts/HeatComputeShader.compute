@@ -2,8 +2,8 @@
 
 RWStructuredBuffer<int> int_result;
 
-[numthreads(1024, 1, 1)]
+[numthreads(32, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
-	int_result[id.x] += id.x;
+	int_result[id.x] = (int_result[id.x] + 1) % 1024;
 }
