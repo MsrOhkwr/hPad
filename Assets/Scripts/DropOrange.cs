@@ -16,9 +16,13 @@ public class DropOrange : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.DownArrow))
             this.GetComponent<Rigidbody>().useGravity = true;
 
-        if (this.GetComponent<Rigidbody>().useGravity && this.transform.position.y < 2.5f)
+        GameObject Obj = GameObject.Find("Head");
+        float height = Obj.transform.position.y + Obj.GetComponent<SphereCollider>().center.y + Obj.GetComponent<SphereCollider>().radius + 0.5f;
+        Debug.Log(height);
+
+        if (this.GetComponent<Rigidbody>().useGravity && this.transform.position.y < height)
         {
-            this.GetComponent<Transform>().position = new Vector3(-3.0f, 2.5f, 0.0f);
+            this.GetComponent<Transform>().position = new Vector3(-2.5f, height, 2.0f);
         }
     }
 }

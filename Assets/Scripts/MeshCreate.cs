@@ -410,7 +410,6 @@ public class MeshCreate : MonoBehaviour
         float uv = Vector3.Dot(u, v);
         return (vv - uv * uv / uu);
     }
-
     // ##############################################################################################################################################################
     // ##############################################################################################################################################################
     private void Awake()
@@ -500,21 +499,28 @@ public class MeshCreate : MonoBehaviour
 
     public void Hit(Vector3 pos)
     {
+        float Maxh = -100.0f;
+        float minh = 100.0f;
+
         for (int i = 0; i < _vertices.Count; i++)
         {
-            //pos = new Vector3(-0.0f, 1.5f, 0.0f);    // パーティクル衝突位置付近で焦げ目がつくようにしたかったんだけど
-            // unityの衝突位置判定がガバ過ぎてうまくいかなかったので，焦げ目中心を固定しちゃいました
+            pos = new Vector3(0.5f, 1.0f, -0.5f);    // パーティクル衝突位置付近で焦げ目がつくようにしたかったんだけど
+                                                     // unityの衝突位置判定がガバ過ぎてうまくいかなかったので，焦げ目中心を固定しちゃいました
 
-            //pos = pos + new Vector3(-3.0f, 1.5f, 0.0f); //this.GetComponent<Transform>().position;
-            pos = new Vector3(1.0f, 0.5f, 0.0f);
             float delta = Mathf.Exp((-Vector3.Distance(_vertices[i].Pos, pos)) * 1.5f);
             _vertices[i].Pos += 0.03f * delta * _vertices[i].Nor;
+
+            if (Maxh < _vertices[i].Pos.y) Maxh = _vertices[i].Pos.y;
+            if (minh > _vertices[i].Pos.y) minh = _vertices[i].Pos.y;
 
             delta = Mathf.Exp((-Vector3.Distance(_vertices[i].Pos, pos) * 3.0f));
             _vertices[i].Col += (new Color(0.5f, 0.2f, 0.1f) - _vertices[i].Col) * (delta) * 0.25f;
             delta = Mathf.Exp((-Vector3.Distance(_vertices[i].Pos, pos) * 4.0f));
             _vertices[i].Col += (new Color(0.0f, 0.0f, 0.0f) - _vertices[i].Col) * (delta) * 0.5f;
         }
+
+        this.GetComponent<SphereCollider>().center = new Vector3(0.0f, (Maxh + minh) / (2.0f * 3.5f), 0.0f);
+        this.GetComponent<SphereCollider>().radius = (Maxh - minh) / (2.0f * 3.5f);
     }
 
     private void Update()
