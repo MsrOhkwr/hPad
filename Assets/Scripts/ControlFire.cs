@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-struct PSModules
+struct PSModules                                                    // パーティクルシステムモジュールの構造体
 {
     public ParticleSystem.ForceOverLifetimeModule Folm;
     public ParticleSystem.EmissionModule Em;
@@ -19,8 +19,8 @@ public class ControlFire : MonoBehaviour
 {
     
 
-    PSModules[] Fire = new PSModules[4];
-    ParticleSystem particle;
+    PSModules[] Fire = new PSModules[4];                                                                // 炎は4レイヤーで作ってるので4にしてるだけ
+    ParticleSystem particle;                                                                            // こいつは親パーティクル．放出開始とか移動みたいな簡単な操作なら4つまとめてできるよ．
     Vector2 PrePos;
     Vector2 NowPos;
 
@@ -28,39 +28,43 @@ public class ControlFire : MonoBehaviour
     void Start()
     {
         NowPos = Input.mousePosition;
-        GameObject obj = GameObject.Find("PS_Parent");
-        particle = obj.GetComponent<ParticleSystem>();
+        GameObject obj = GameObject.Find("PS_Parent");                                                  // obj にPS_Parentって名前のオブジェクトを渡す
+        particle = obj.GetComponent<ParticleSystem>();                                                  // PS_Parentの コンポーネントをいじれるようになる
+                                                                                                        // コンポーネントはインスペクタに一覧表示されるやつ．同じようにレンダラーとかコライダーとかもとってこれる
+
 
         //炎は4重のパーティクルのインスタンスから構成する
         ParticleSystem ParticleObj;
         ParticleObj = transform.Find("PS_Fire_ALPHA").GetComponent<ParticleSystem>();
+
         Fire[0].Folm = ParticleObj.forceOverLifetime;
         Fire[0].Em   = ParticleObj.emission;
         Fire[0].Sh   = ParticleObj.shape;
 
-        ParticleObj = transform.Find("PS_Fire_ADD").GetComponent<ParticleSystem>();
+        ParticleObj = transform.Find("PS_Fire_ADD").GetComponent<ParticleSystem>();                     // 真ん中のめちゃめちゃ光ってるやつ
         Fire[1].Folm = ParticleObj.forceOverLifetime;
         Fire[1].Em = ParticleObj.emission;
         Fire[1].Sh = ParticleObj.shape;
 
-        ParticleObj = transform.Find("PS_Glow").GetComponent<ParticleSystem>();
+        ParticleObj = transform.Find("PS_Glow").GetComponent<ParticleSystem>();                         // 周りでぼんやり明るいやつ
         Fire[2].Folm = ParticleObj.forceOverLifetime;
         Fire[2].Em = ParticleObj.emission;
         Fire[2].Sh = ParticleObj.shape;
 
-        ParticleObj = transform.Find("PS_Sparks").GetComponent<ParticleSystem>();
+        ParticleObj = transform.Find("PS_Sparks").GetComponent<ParticleSystem>();                       // 火の粉
         Fire[3].Folm = ParticleObj.forceOverLifetime;
         Fire[3].Em = ParticleObj.emission;
         Fire[3].Sh = ParticleObj.shape;
     }
 
-    private float mCount = 0;       //←時間計測用
-    private bool mSwitch = true;    //←切り替えスイッチ用
+    private float mCount = 0;       //←時間計測用　　　　　　　デフォであったやつ　今は使ってない
+    private bool mSwitch = true;    //←切り替えスイッチ用　　　　　　　　　　同上
 
     // Update is called once per frame
     [System.Obsolete]
     void Update()
     {
+
 
         //着火の判定 ==========================================================================
 
@@ -73,9 +77,10 @@ public class ControlFire : MonoBehaviour
             Debug.Log("KeyBoard input accepted");
             PrePos = NowPos;
             NowPos = Input.mousePosition;
-            if (Vector2.Distance(NowPos, PrePos) > 75.0f)
+            if (Vector2.Distance(NowPos, PrePos) > 75.0f)       // 前のフレームから75より大きく動いたら点火
                 particle.Play();
         }
+
 
         //炎の傾き方向の判定 ==========================================================================
         //水平方向の値の取得
@@ -94,8 +99,9 @@ public class ControlFire : MonoBehaviour
 
         for (int i = 0; i < Fire.Length; i++)
         {
-            if (i == 3)
+            if (i == 3)                                         // 火の粉だけ処理が別
             {
+
 
                 Fire[i].Em.rate = new ParticleSystem.MinMaxCurve(5);
                 //x方向の加速度の絶対値に応じて調整
@@ -112,10 +118,11 @@ public class ControlFire : MonoBehaviour
                 Fire[i].Sh.angle = 12 + 24 * System.Math.Abs(acc.y);
 
 
+
             }
             else
             {
-                Fire[i].Em.rate = new ParticleSystem.MinMaxCurve(10);
+                Fire[i].Em.rate = new ParticleSystem.MinMaxCurve(15);
                 Fire[i].Folm.x = new ParticleSystem.MinMaxCurve(force);
                 Fire[i].Folm.y = new ParticleSystem.MinMaxCurve(5 * v_force);
 
