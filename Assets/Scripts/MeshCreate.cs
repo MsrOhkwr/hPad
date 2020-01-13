@@ -11,8 +11,6 @@ public class Vertex
     private Vector2 tex;
     private List<int> nearby;
     private List<int> including;
-    private float rust;
-    private float bond;
 
     public Vertex(Vector3 p)
     {
@@ -22,7 +20,6 @@ public class Vertex
         tex = new Vector2(0, 0);
         nearby = new List<int>();
         including = new List<int>();
-        rust = 0.0f;
     }
     public Vertex(Vertex Ver)
     {
@@ -32,7 +29,6 @@ public class Vertex
         tex = Ver.Tex;
         nearby = new List<int>();
         including = new List<int>();
-        rust = 0.0f;
     }
     public Vertex(Vector3 p, Vector3 n)
     {
@@ -42,7 +38,6 @@ public class Vertex
         tex = new Vector2(0, 0);
         nearby = new List<int>();
         including = new List<int>();
-        rust = 0.0f;
     }
     public void SetNearbyVertex(int v)
     {
@@ -93,126 +88,8 @@ public class Vertex
         set { tex = value; }
         get { return tex; }
     }
-    public float Rust
-    {
-        set { rust = value; }
-        get { return rust; }
-    }
 }
 
-public class HalfEdge
-{
-    private int oppositeVertex;
-    private float liftingForce;
-    private float bindingForce;
-    private int end1;
-    private int end2;
-    private int pair;
-    private int next;
-    private int including;
-    private bool connected;
-
-    public HalfEdge(int P, int Q, int R)
-    {
-        oppositeVertex = P;
-        liftingForce = 0.0f;
-        bindingForce = 100.0f;
-        end1 = Q;
-        end2 = R;
-        pair = -1;
-        next = -1;
-        including = -1;
-        connected = true;
-    }
-    public HalfEdge(int P, int Q, int R, int inc)
-    {
-        oppositeVertex = P;
-        liftingForce = 0.0f;
-        bindingForce = 100.0f;
-        end1 = Q;
-        end2 = R;
-        pair = -1;
-        next = -1;
-        including = inc;
-        connected = true;
-    }
-
-    public int ReloadPair(List<HalfEdge> EList)
-    {
-        for (int i = 0; i < EList.Count; i++)
-            if ((this.end1 == EList[i].End1 && this.end2 == EList[i].End2) || (this.end1 == EList[i].End2 && this.end2 == EList[i].End1))
-            {
-                if (this.oppositeVertex != EList[i].OppositeVertex)
-                {
-                    this.pair = i;
-                    return i;
-                }
-            }
-        return -1;
-    }
-    public int ReloadIncluding(List<TPolygon> TList)
-    {
-        for (int i = 0; i < TList.Count; i++)
-        {
-            TPolygon TPi = TList[i];
-            if ((this.end1 == TPi.V1 && this.end2 == TPi.V2 && this.oppositeVertex == TPi.V3) || (this.end1 == TPi.V2 && this.end2 == TPi.V1 && this.oppositeVertex == TPi.V3)
-             || (this.end1 == TPi.V2 && this.end2 == TPi.V3 && this.oppositeVertex == TPi.V1) || (this.end1 == TPi.V3 && this.end2 == TPi.V2 && this.oppositeVertex == TPi.V1)
-             || (this.end1 == TPi.V3 && this.end2 == TPi.V1 && this.oppositeVertex == TPi.V2) || (this.end1 == TPi.V1 && this.end2 == TPi.V3 && this.oppositeVertex == TPi.V2)
-               )
-            {
-                this.including = i;
-                return i;
-            }
-        }
-        Debug.Log("Including Polygon does NOT exsit.");
-        return -1;
-    }
-    public int OppositeVertex
-    {
-        set { oppositeVertex = value; }
-        get { return oppositeVertex; }
-    }
-    public float LiftingForce
-    {
-        set { liftingForce = value; }
-        get { return liftingForce; }
-    }
-    public float BindingForce
-    {
-        set { bindingForce = value; }
-        get { return bindingForce; }
-    }
-    public int End1
-    {
-        set { end1 = value; }
-        get { return end1; }
-    }
-    public int End2
-    {
-        set { end2 = value; }
-        get { return end2; }
-    }
-    public int Including
-    {
-        set { including = value; }
-        get { return including; }
-    }
-    public int Pair
-    {
-        set { pair = value; }
-        get { return pair; }
-    }
-    public int Next
-    {
-        set { next = value; }
-        get { return next; }
-    }
-    public bool Connected
-    {
-        set { connected = value; }
-        get { return connected; }
-    }
-}
 public class TPolygon
 {
     private int v1;
@@ -357,8 +234,6 @@ public class MeshCreate : MonoBehaviour
 
     private float _speed = 0.15f;
     private bool _simulating = true;
-    private Vector3 _gravity = new Vector3(0.0f, -1.0f, 0.0f);
-    private bool _vis = false;
 
     [SerializeField]
     private uint _seed = 1000;
@@ -375,7 +250,6 @@ public class MeshCreate : MonoBehaviour
 
     // (2) ポリゴンを形成する頂点インデックスを順番に指定する
     private List<TPolygon> _tpolygons = new List<TPolygon>();
-    private List<HalfEdge> _halfedges = new List<HalfEdge>();
 
     private int[] _triangles = new int[] { 0, 1, 2 };
 
@@ -401,15 +275,6 @@ public class MeshCreate : MonoBehaviour
         Color.red,
     };
 
-    private float Dist2BetweenPointAndLine(Vector3 P, Vector3 Q, Vector3 R)
-    {
-        Vector3 u = P - Q;
-        Vector3 v = R - Q;
-        float uu = Vector3.Dot(u, u);
-        float vv = Vector3.Dot(v, v);
-        float uv = Vector3.Dot(u, v);
-        return (vv - uv * uv / uu);
-    }
     // ##############################################################################################################################################################
     // ##############################################################################################################################################################
     private void Awake()
@@ -437,24 +302,9 @@ public class MeshCreate : MonoBehaviour
         _vertices.Add(new Vertex(new Vector3(0, 20, 0))); _vertices.Add(new Vertex(new Vector3(15, -10, 0))); _vertices.Add(new Vertex(new Vector3(-15, -10, 0)));
         _tpolygons.Add(new TPolygon(0, 1, 2));
 
-
-        for (int i = _tpolygons.Count - 1; i >= 0; i--)
-        {
-
-            TPolygon TP = _tpolygons[i];
-
-        }
-
         for (int i = 0; i < _tpolygons.Count; i++)
         {
             TPolygon TP = _tpolygons[i];
-
-            _halfedges.Add(new HalfEdge(TP.V1, TP.V2, TP.V3, i));
-            _halfedges.Add(new HalfEdge(TP.V2, TP.V3, TP.V1, i));
-            _halfedges.Add(new HalfEdge(TP.V3, TP.V1, TP.V2, i));
-            _halfedges[_halfedges.Count - 3].Next = _halfedges.Count - 2;
-            _halfedges[_halfedges.Count - 2].Next = _halfedges.Count - 1;
-            _halfedges[_halfedges.Count - 1].Next = _halfedges.Count - 3;
 
             _vertices[TP.V1].SetNearbyVertex(TP.V2);
             _vertices[TP.V1].SetNearbyVertex(TP.V3);
@@ -464,29 +314,6 @@ public class MeshCreate : MonoBehaviour
             _vertices[TP.V3].SetNearbyVertex(TP.V2);
         }
 
-        for (int i = 0; i < _halfedges.Count; i++)
-        {
-            _halfedges[i].ReloadPair(_halfedges);
-            //_halfedges[i].ReloadIncluding(_tpolygons);
-        }
-        for (int i = 0; i < _halfedges.Count; i++)
-        {
-            HalfEdge HEi = _halfedges[i];
-
-            if (HEi.Pair == -1) // 簡易曲率計算 & かける揚力計算
-            {
-                HEi.LiftingForce = 0.05f / Dist2BetweenPointAndLine(_vertices[HEi.OppositeVertex].Pos, _vertices[HEi.End1].Pos, _vertices[HEi.End2].Pos) * 2.0f;
-            }
-            else
-            {
-                bool convex = Vector3.Dot(_vertices[HEi.OppositeVertex].Nor - _vertices[_halfedges[HEi.Pair].OppositeVertex].Nor, _vertices[HEi.OppositeVertex].Pos - _vertices[_halfedges[HEi.Pair].OppositeVertex].Pos) > 0;
-                float rad = Vector3.Dot(_vertices[HEi.OppositeVertex].Nor.normalized, _vertices[_halfedges[HEi.Pair].OppositeVertex].Nor.normalized);
-                float d = Mathf.Clamp(rad, -1.0f, 1.0f);
-                HEi.LiftingForce = 0.05f / Dist2BetweenPointAndLine(_vertices[HEi.OppositeVertex].Pos, _vertices[HEi.End1].Pos, _vertices[HEi.End2].Pos)
-                    * (convex ? Mathf.PI + Mathf.Acos(d) : Mathf.PI - Mathf.Acos(d));
-            }
-
-        }
 
 
         for (int i = 0; i < _tpolygons.Count; i++)
@@ -529,20 +356,6 @@ public class MeshCreate : MonoBehaviour
 
         Array.Resize(ref _triangles, _tpolygons.Count * 3);
 
-        for (int i = 0; i < _tpolygons.Count; i++)  // 三角ポリゴンごとの処理
-        {
-            TPolygon TPi = _tpolygons[i];
-
-        }
-
-        for (int i = 0; i < _halfedges.Count; i++)  // ハーフエッジごとの処理
-        {
-            HalfEdge HEi = _halfedges[i];
-            HalfEdge HEp = HEi.Pair == -1 ? HEi : _halfedges[HEi.Pair];
-            TPolygon HEiP = _tpolygons[HEi.Including];
-            TPolygon HEpP = _tpolygons[HEp.Including];
-        }
-
         for (int i = 0; i < _tpolygons.Count; i++)      // ポリゴンの最終処理：ポリゴン座標をメッシュに代入
         {
                 _triangles[i * 3] = _tpolygons[i].V1;
@@ -577,36 +390,9 @@ public class MeshCreate : MonoBehaviour
 
         }
 
-        // 収縮力計算 （デバッグ用）
-        // Debug.Log("Contract: " + _tpolygons[100].ContractionForce);
-        int[] Cface = new int[_vertices.Count];
-        float[] ContractSum = new float[_vertices.Count];
-        for (int i = 0; i < _vertices.Count; i++) Cface[i] = 0;
-        for (int i = 0; i < _tpolygons.Count; i++)
-        {
-            TPolygon TP = _tpolygons[i];
-            ContractSum[TP.V1] += TP.ContractionForce; Cface[TP.V1]++;
-            ContractSum[TP.V2] += TP.ContractionForce; Cface[TP.V2]++;
-            ContractSum[TP.V3] += TP.ContractionForce; Cface[TP.V3]++;
-        }
         for (int i = 0; i < _vertices.Count; i++)
         {
-            _vertices[i].Rust = ContractSum[i] / Cface[i];
-
-        }
-
-        Array.Resize(ref _uvs, _positions.Length);
-        if (Input.GetKeyDown(KeyCode.V))
-            _vis = !_vis;
-
-        for (int i = 0; i < _positions.Length; i++)
-                _uvs[i] = new Vector2((_positions[i].x + 5) / 10.0f, (_positions[i].y + 5) / 10.0f);
-
-        for (int i = 0; i < _vertices.Count; i++)
-        {
-            //_colors[i] = new Color(132.0f / 255.0f, 51.0f / 255.0f, 0.0f, 1.0f) + new Color(123.0f / 255.0f, 204.0f / 255.0f, 1.0f, 0.0f) * Mathf.Exp(-(_vertices[i].Rust > 10.0f ? _vertices[i].Rust - 10.0f : 0.0f) / 100.0f);
-            _colors[i] = _vertices[i].Col;
-            // _colors[i] = Color.white;
+           _colors[i] = _vertices[i].Col;
         }
 
         // (4) Meshに頂点情報を代入

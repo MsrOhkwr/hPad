@@ -18,7 +18,6 @@ public class DropOrange : MonoBehaviour
 
         GameObject Obj = GameObject.Find("Head");
         float height = Obj.transform.position.y + Obj.GetComponent<SphereCollider>().center.y + Obj.GetComponent<SphereCollider>().radius + 0.5f;
-        Debug.Log(height);
 
         if (this.GetComponent<Rigidbody>().useGravity && this.transform.position.y < height)
         {
